@@ -9,6 +9,7 @@ import { useState } from "react";
 
 export function Post({ author, content, publishedAt }) {
   const [comments, setComments] = useState([]);
+  const [newCommentText, setNewCommentText] = useState("");
 
   const formattedPublishDate = format(
     publishedAt,
@@ -25,6 +26,13 @@ export function Post({ author, content, publishedAt }) {
 
   function handleCreateNewComment(e) {
     e.preventDefault();
+
+    setComments([...comments, newCommentText]);
+    setNewCommentText("");
+  }
+
+  function handleNewCommentChange(e) {
+    setNewCommentText(e.target.value);
   }
 
   return (
@@ -47,10 +55,10 @@ export function Post({ author, content, publishedAt }) {
       <div className={styles.content}>
         {content.map((line) => {
           if (line.type === "paragraph") {
-            return <p>{line.content}</p>;
+            return <p key={line.content}>{line.content}</p>;
           } else if (line.type === "link") {
             return (
-              <p>
+              <p key={line.content}>
                 <a href="">{line.content}</a>
               </p>
             );
@@ -63,7 +71,11 @@ export function Post({ author, content, publishedAt }) {
       <form onSubmit={handleCreateNewComment} className={styles.commentForm}>
         <strong>Deixe seu feedback</strong>
 
-        <textarea placeholder="Deixe um comentário" />
+        <textarea
+          value={newCommentText}
+          onChange={handleNewCommentChange}
+          placeholder="Deixe um comentário"
+        />
 
         <footer>
           <button type="submit">Publicar</button>
@@ -71,8 +83,8 @@ export function Post({ author, content, publishedAt }) {
       </form>
 
       <div className={styles.commentList}>
-        {comments.map((comment, index) => (
-          <Comment key={index} />
+        {comments.map((comment) => (
+          <Comment key={comment} content={comment} />
         ))}
       </div>
     </article>
