@@ -1,46 +1,68 @@
 import { format, formatDistanceToNow } from "date-fns";
-import ptBr from "date-fns/locale/pt-BR";
+import { ptBR } from "date-fns/locale/pt-BR";
+import { ChangeEvent, FormEvent, InvalidEvent, useState } from "react";
 
 import { Avatar } from "./Avatar";
 import { Comment } from "./Comment";
 
 import styles from "./Post.module.css";
-import { useState } from "react";
 
-export function Post({ author, content, publishedAt }) {
-  const [comments, setComments] = useState([]);
-  const [newCommentText, setNewCommentText] = useState("");
+interface Author {
+  name: string;
+  avatarUrl: string;
+  role: string;
+}
+
+interface Content {
+  type: "paragraph" | "link";
+  content: string;
+}
+
+export interface TPost {
+  id: number;
+  author: Author;
+  content: Content[];
+  publishedAt: Date;
+}
+
+interface PostProps {
+  post: TPost;
+}
+
+export function Post({ post: { author, content, publishedAt } }: PostProps) {
+  const [comments, setComments] = useState<string[]>([]);
+  const [newCommentText, setNewCommentText] = useState<string>("");
 
   const formattedPublishDate = format(
     publishedAt,
     "dd 'de' LLLL 'de' yyyy 'às' HH:mm'h'",
     {
-      locale: ptBr,
+      locale: ptBR,
     }
   );
 
   const publishDateFromNow = formatDistanceToNow(publishedAt, {
-    locale: ptBr,
+    locale: ptBR,
     addSuffix: true,
   });
 
-  function handleCreateNewComment(e) {
+  function handleCreateNewComment(e: FormEvent) {
     e.preventDefault();
 
     setComments([...comments, newCommentText]);
     setNewCommentText("");
   }
 
-  function handleNewCommentChange(e) {
+  function handleNewCommentChange(e: ChangeEvent<HTMLTextAreaElement>) {
     e.target.setCustomValidity("");
     setNewCommentText(e.target.value);
   }
 
-  function handleNewCommentInvalid(e) {
+  function handleNewCommentInvalid(e: InvalidEvent<HTMLTextAreaElement>) {
     e.target.setCustomValidity("Esse campo é obrigatório!");
   }
 
-  function deleteComment(commentToDelete) {
+  function deleteComment(commentToDelete: string) {
     const commentsWithoutDeletedOne = comments.filter(
       (comment) => comment !== commentToDelete
     );
